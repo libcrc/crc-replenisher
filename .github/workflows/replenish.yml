@@ -1,0 +1,41 @@
+name: CRC Replenisher
+
+on:
+  schedule:
+    # Runs every 5 minutes
+    - cron: "*/5 * * * *"
+  workflow_dispatch: # Allows manual trigger
+
+permissions:
+  contents: read
+
+jobs:
+  replenish:
+    runs-on: ubuntu-latest
+    if: vars.JOB_ENABLED == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run replenisher
+        env:
+          CRC_SAFE_KEY: ${{ secrets.CRC_SAFE_KEY }}
+          CRC_PROFILE: ${{ secrets.CRC_PROFILE }}
+          MAX_RUN_MS: "270000" # Run for 4.5 minutes max (leave 30 sec buffer)
+          MAX_FLOW_THRESHOLD: ${{ secrets.MAX_FLOW_THRESHOLD }}
+          RPC_URL: ${{ secrets.RPC_URL }}
+        run: pnpm start
