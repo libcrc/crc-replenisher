@@ -12,13 +12,13 @@ import type { TokenBalanceRow } from "@circles-sdk/data" with { "resolution-mode
 
 const CRC_SAFE_KEY = process.env.CRC_SAFE_KEY;
 const CRC_PROFILE: Address = process.env.CRC_PROFILE;
-const MAX_RUN_MS: number = parseInt(process.env.MAX_RUN_MS || "0", 10);
+const LOOP: boolean = process.env.LOOP === 'true'
 const MAX_FLOW_THRESHOLD: number = parseFloat(process.env.MAX_FLOW_THRESHOLD || '1.0');
 const API_ENDPOINT = 'https://rpc.aboutcircles.com/';
 const RPC_URL = process.env.RPC_URL || 'https://rpc.gnosischain.com/';
 let CHAIN_ID = 100; // Gnosis chain
 
-console.log(`running with config:\nchainId=${CHAIN_ID}\nCRC_PROFILE=${CRC_PROFILE}\nMAX_RUN_MS=${MAX_RUN_MS}\nMAX_FLOW_THRESHOLD=${MAX_FLOW_THRESHOLD}\nAPI_ENDPOINT=${API_ENDPOINT}\nRPC_ENDPOINT=${RPC_URL}`);
+console.log(`running with config:\nchainId=${CHAIN_ID}\nCRC_PROFILE=${CRC_PROFILE}\nLOOP=${LOOP}\nMAX_FLOW_THRESHOLD=${MAX_FLOW_THRESHOLD}\nAPI_ENDPOINT=${API_ENDPOINT}\nRPC_ENDPOINT=${RPC_URL}`);
 
 type PathfinderTransfer = {
   from: Address,
@@ -265,23 +265,24 @@ async function wrapSelfBalance(runner: SdkContractRunner, amount?: bigint) {
 
 const start = Date.now();
 
-async function mainLoop(maxRunMs: number = 0) {
+async function mainLoop(loop: boolean) {
   const { runner, hubContract } = await init(CRC_PROFILE, CRC_SAFE_KEY);
-  while (maxRunMs == 0 || (Date.now() - start <= maxRunMs)) {
+  do {
     try {
       const amount = await tryReplenish(hubContract, MAX_FLOW_THRESHOLD, CRC_PROFILE);
       await wrapSelfBalance(runner, amount);
-      if ((Date.now() - start >= maxRunMs)) {
+      if (loop) {
+        await sleep(30 * 1000); // Wait 30 seconds before the next check
+      } else {
         break;
       }
-      await sleep(30 * 1000); // Wait 30 seconds before the next check
     } catch (error) {
       console.error('Error in main loop:', error);
     }
-  }
+  } while (true);
 }
 
-mainLoop(MAX_RUN_MS)
+mainLoop(LOOP)
   .finally(() => {
     console.log(`Finished main loop after ${Date.now() - start} milliseconds...`);
   })
