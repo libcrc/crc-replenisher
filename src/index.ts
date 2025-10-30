@@ -271,6 +271,9 @@ async function mainLoop(maxRunMs: number = 0) {
     try {
       const amount = await tryReplenish(hubContract, MAX_FLOW_THRESHOLD, CRC_PROFILE);
       await wrapSelfBalance(runner, amount);
+      if ((Date.now() - start >= maxRunMs)) {
+        break;
+      }
       await sleep(30 * 1000); // Wait 30 seconds before the next check
     } catch (error) {
       console.error('Error in main loop:', error);
