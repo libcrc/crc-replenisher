@@ -35,7 +35,7 @@ jobs:
         env:
           CRC_SAFE_KEY: ${{ secrets.CRC_SAFE_KEY }}
           CRC_PROFILE: ${{ secrets.CRC_PROFILE }}
-          MAX_RUN_MS: ${{ secrets.MAX_RUN_MS }}
-          MAX_FLOW_THRESHOLD: ${{ secrets.MAX_FLOW_THRESHOLD }}
+          MAX_RUN_MS: ${{ vars.MAX_RUN_MS }}
+          MAX_FLOW_THRESHOLD: ${{ vars.MAX_FLOW_THRESHOLD }}
           RPC_URL: ${{ secrets.RPC_URL }}
         run: pnpm start
