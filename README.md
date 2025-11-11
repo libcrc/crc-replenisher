@@ -35,7 +35,6 @@ This tool runs in a loop with configurable thresholds and timing and:
    ```bash
    export CRC_SAFE_KEY="your_private_key" // you can find this using devtools on app.aboutcircles.com, in localstorage
    export CRC_PROFILE="0x_your_circles_profile_address"
-   export MAX_RUN_MS="300000"  # Optional: max runtime in ms (0 = infinite)
    export MAX_FLOW_THRESHOLD="1.0"  # Optional: minimum CRC threshold
    export RPC_URL="https://rpc.gnosischain.com/"  # Optional: custom RPC
    ```
